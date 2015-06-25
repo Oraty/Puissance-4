@@ -19,12 +19,3 @@ public:
 };
 
 #endif // PUISSANCE4_H_INCLUDED
-
-
-
-
-
-
-
-
-

@@ -10,6 +10,9 @@ private:
     Grille grille;
     Couleur askPlayerColor();
     unsigned int askPlayerColumn();
+    unsigned int countTokens(int,int,std::size_t,std::size_t);
+    bool isWon(Couleur);
+    bool isGrillePleine();
 public:
     PuissanceQuatre();
     PuissanceQuatre(PuissanceQuatre const&) = delete;

@@ -25,11 +25,11 @@ bool getUInt(unsigned int& i)
 
 PuissanceQuatre::PuissanceQuatre()
 {
-    for (auto& colonne : grille)   //for every column of "grille"
+    for (auto& column : grid)   //for every column of "grid"
     {
-        for (auto& kase : colonne) // for every case of every comumn of "grille" //kase = case
+        for (auto& kase : column) // for every case of every comumn of "grid" //kase = case
         {
-            kase = vide;//set every case to "vide" (empty)
+            kase = nothing;//set every case to "nothing" (nothing)
         }
     }
 }
@@ -39,16 +39,16 @@ void PuissanceQuatre::print()  // print 'O' for yellow and 'X' for red
     for (unsigned i {0}; i<500; i++)
         std::cout << std::endl;
 
-    for (auto ligne : grille)      //for every column of "grille"
+    for (auto line : grid)      //for every column of "grid"
     {
         std::cout << " |";
-        for (auto kase : ligne)   // for every case of every column of "grille" //kase = case
+        for (auto kase : line)   // for every case of every column of "grid" //kase = case
         {
-            if (kase == vide)
+            if (kase == nothing)
             {
                 std::cout << ' ';
             }
-            else if(kase == jaune)
+            else if(kase == yellow)
             {
                 std::cout << 'O';
             }
@@ -62,90 +62,81 @@ void PuissanceQuatre::print()  // print 'O' for yellow and 'X' for red
     }
     std::cout << '=';
     for (unsigned i {1}; i<=7; i++) std::cout << '=' << i;
-    std::cout << '=' << '=';
+    std::cout << '=' << '=' << '\n';
 }
-
-/*Play method *
- *vérifier si la grille est pleine dans ce cas terminer le jeu*
- *demander quel joueur joue en premier*
- *faire jouer ce joueur*
- *verifier son coup*
- *si le coup est invalide le faire jouer*
- */
-
-Couleur PuissanceQuatre::askPlayerColor()
+Color PuissanceQuatre::askPlayerColor()
 {
-    Couleur jeton;
-    std::cout << "Quelle est la couleur du premier joueur? (jaune ou rouge)" << std::endl;
-    std::string joueur;
-    std::cin >> joueur;
+    Color token;
+    std::cout << "Quelle est la couleur du premier joueur? (yellow ou red)" << std::endl;
+    std::string player;
+    std::cin >> player;
     if (std::cin.eof())
     {
-        return vide;
+        return nothing;
     }
-    while (joueur != "jaune" && joueur != "rouge")
+    while (player != "yellow" && player != "red")
     {
-        std::cout << "Veuillez rentrer une information comprise entre \" jaune \" et \" rouge \" \n";
-        std::cin >> joueur;
+        std::cout << "Veuillez rentrer une information comprise entre \" yellow \" et \" red \" \n";
+        std::cin >> player;
         if (std::cin.eof())
         {
-            return vide;
+            return nothing;
         }
     }
-    if (joueur == "jaune")jeton = jaune;
-    else jeton = rouge;
-    return jeton;
+    if (player == "yellow")token = yellow;
+    else token = red;
+    return token;
 }
 
 unsigned int PuissanceQuatre::askPlayerColumn()
 {
-    unsigned int colonne {0};
+    unsigned int column {0};
     std::cout << "Sur quelle colonne jouer? (1-7)" << std::endl;
-    auto isNotQuited = getUInt(colonne);
-    if (colonne <= 0 || colonne > 7)
+    auto isNotQuited = getUInt(column);
+    if (column <= 0 || column > 7)
     {
         std::cout << "Veuillez entrer un chiffre entier compris entre 1 et 7 inclus\n";
-        isNotQuited = getUInt(colonne);
+        isNotQuited = getUInt(column);
     }
     if (!isNotQuited)
     {
         return 10;
     }
-    --colonne; // On fait correspondre le nombre entré avec l'index du tableau (0-6)
-    return colonne;
+    --column; // Make it match with grid index (0-6)
+    return column;
 }
 
-unsigned int PuissanceQuatre::countTokens(int dir_colonne,int dir_ligne,std::size_t ligne,std::size_t colonne)
+unsigned int PuissanceQuatre::countTokens(int dir_column,int dir_line,std::size_t column,std::size_t line)
 {
     int i {0};
-    Couleur jeton = grille[ligne][colonne];
-    if (jeton == vide)
+    Color token = grid[line][column];
+    if (token == nothing)
     {
         return 1;
     }
-    while(ligne < grille.size() &&
-            colonne < grille[ligne].size() &&
-            grille[ligne][colonne] == jeton)
+    while(line < grid.size() &&
+            column < grid[line].size() &&
+            grid[line][column] == token)
     {
-        ligne += dir_ligne;
-        colonne += dir_colonne;
+        line += dir_line;
+        column += dir_column;
         i++;
     }
     return i;
 }
 
-bool PuissanceQuatre::isWon(Couleur joueur)
+bool PuissanceQuatre::isWon(Color player)
 {
-    for(std::size_t ligne {5}; ligne < grille.size(); ligne--)
+    for(std::size_t line {5}; line < grid.size(); line--)
     {
-        for(std::size_t colonne {0}; colonne < grille[ligne].size(); colonne++)
+        for(std::size_t column {0}; column < grid[line].size(); column++)
         {
-            if (grille[ligne][colonne] == joueur)
+            if (grid[line][column] == player)
             {
-                if (PuissanceQuatre::countTokens(-1,0,ligne,colonne) >= 4 ||
-                        PuissanceQuatre::countTokens(-1,+1,ligne,colonne) >= 4 ||
-                        PuissanceQuatre::countTokens(0,1,ligne,colonne) >= 4 ||
-                        PuissanceQuatre::countTokens(+1,-1,ligne,colonne) >= 4)
+                if (    PuissanceQuatre::countTokens(-1,0,column,line) >= 4 ||
+                        PuissanceQuatre::countTokens(-1,+1,column,line) >= 4 ||
+                        PuissanceQuatre::countTokens(0,1,column,line) >= 4 ||
+                        PuissanceQuatre::countTokens(+1,+1,column,line) >= 4)
                 {
                     return true;
                 }
@@ -154,10 +145,10 @@ bool PuissanceQuatre::isWon(Couleur joueur)
     }
     return false;
 }
-bool PuissanceQuatre::isGrillePleine()
+bool PuissanceQuatre::isGridFull()
 {
     unsigned int i {0};
-    while(grille[0][i] != vide)
+    while(grid[0][i] != nothing)
     {
         i++;
     }
@@ -169,43 +160,46 @@ bool PuissanceQuatre::isGrillePleine()
 }
 void PuissanceQuatre::play()
 {
-    auto joueur = this->askPlayerColor(); //Jeton = couleur choisie par le joueur
-    decltype(joueur)& jeton {joueur}; //Création d'une référence à joueur pour la sémantique
-    if (jeton == vide)//Si le joueur à quité.
+    auto player = this->askPlayerColor(); //token = choosed color
+    decltype(player)& token {player}; //Creating a reference to player for semantic
+    if (token == nothing)//If the player quit with ctrl+D
     {
         return;
     }
     bool isWon {};
-    do //Déroulement du jeu
+    do //Progress of the game
     {
-        if(isGrillePleine())
+        if(isGridFull())
         {
             std::cout << "\n La grille est pleine!" << std::endl;
             return;
         }
-        int ligne {5};
-        auto colonne = this->askPlayerColumn();
-        while (grille[ligne][colonne] != vide)// on parcourt la colonne de haut en bas jusqu'a trouver une case vide
+        int line {5};
+        auto column = this->askPlayerColumn();
+        while (grid[line][column] != nothing)// we browse the column from top to bottom until we found an empty case
         {
-            ligne--;
-            if (ligne < 0)
+            line--;
+            if (line < 0)
             {
                 std::cout << "La colonne est pleine!\n";
-                colonne = this->askPlayerColumn();//Colonne = colonne entré par le joueur après vérification
-                ligne = 5;
+                column = this->askPlayerColumn();//column = column typed by the player after verification
+                line = 5;
             }
         }
-        if (colonne == 10)//Si le joueur à quitté
+        if (column == 10)//If the player quit with ctrl+D
         {
             return;
         }
-        grille[ligne][colonne] = jeton; //Placement du jeton
-        isWon = this->isWon(joueur);
-        if (joueur != rouge)joueur = rouge;
-        else if (joueur != jaune)joueur = jaune;
+        grid[line][column] = token; //Placement of the token
+        isWon = this->isWon(player);
+        if (player != red)player = red;
+        else if (player != yellow)player = yellow;
         this->print();
 
     }
     while(!isWon);
-
+    std::cout << "\n\n\
+                  ===================\n\
+                  ==Vous avez gagné==\n\
+                  ===================";
 }

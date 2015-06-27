@@ -75,65 +75,43 @@ void PuissanceQuatre::print()  // print 'O' for yellow and 'X' for red
 
 Couleur PuissanceQuatre::askPlayerColor()
 {
-    bool isJauneOrRouge;
     Couleur jeton;
-    do
+    std::cout << "Quelle est la couleur du premier joueur? (jaune ou rouge)" << std::endl;
+    std::string joueur;
+    std::cin >> joueur;
+    if (std::cin.eof())
     {
-        isJauneOrRouge = false;
-        std::cout << "Quelle est la couleur du premier joueur? (jaune ou rouge)" << std::endl;
-        std::string joueur;
+        return vide;
+    }
+    while (joueur != "jaune" && joueur != "rouge")
+    {
+        std::cout << "Veuillez rentrer une information comprise entre \" jaune \" et \" rouge \" \n";
         std::cin >> joueur;
         if (std::cin.eof())
         {
             return vide;
         }
-        try
-        {
-            if (joueur != "jaune" && joueur != "rouge")
-            {
-                throw std::invalid_argument("L'information rentrée n'est ni jaune ni rouge \n");
-            }
-            else if (joueur == "jaune")jeton = jaune;
-            else jeton = rouge;
-        }
-        catch (std::exception const& invArg)
-        {
-            std::cout << invArg.what() ;
-            isJauneOrRouge = true;
-        }
     }
-    while(isJauneOrRouge);
+    if (joueur == "jaune")jeton = jaune;
+    else jeton = rouge;
     return jeton;
 }
 
 unsigned int PuissanceQuatre::askPlayerColumn()
 {
     unsigned int colonne {0};
-    bool isArgValid;
-    do
+    std::cout << "Sur quelle colonne jouer? (1-7)" << std::endl;
+    auto isNotQuited = getUInt(colonne);
+    if (colonne <= 0 || colonne > 7)
     {
-        std::cout << "Sur quelle colonne jouer? (1-7)" << std::endl;
-        auto isNotQuited = getUInt(colonne);
-        isArgValid = true;
-        if (!isNotQuited)
-        {
-            return 10;
-        }
-        try
-        {
-            if (colonne <=0 || colonne > 7)
-            {
-                throw std::invalid_argument("L'information rentrée n'est pas comprise entre 1 et 7 \n");
-            }
-        }
-        catch (std::exception const& invArg)
-        {
-            std::cout << invArg.what() ;
-            isArgValid = false;
-        }
-        colonne -= 1; // On fait correspondre le nombre entré avec l'index du tableau (0-6)
+        std::cout << "Veuillez entrer un chiffre entier compris entre 1 et 7 inclus\n";
+        isNotQuited = getUInt(colonne);
     }
-    while(!isArgValid);
+    if (!isNotQuited)
+    {
+        return 10;
+    }
+    --colonne; // On fait correspondre le nombre entré avec l'index du tableau (0-6)
     return colonne;
 }
 
@@ -206,34 +184,21 @@ void PuissanceQuatre::play()
             return;
         }
         int ligne {5};
-        error:
-        auto colonne = this->askPlayerColumn();//Colonne = colonne entré par le joueur après vérification
+        auto colonne = this->askPlayerColumn();
+        while (grille[ligne][colonne] != vide)// on parcourt la colonne de haut en bas jusqu'a trouver une case vide
+        {
+            ligne--;
+            if (ligne < 0)
+            {
+                std::cout << "La colonne est pleine!\n";
+                colonne = this->askPlayerColumn();//Colonne = colonne entré par le joueur après vérification
+                ligne = 5;
+            }
+        }
         if (colonne == 10)//Si le joueur à quitté
         {
             return;
         }
-
-        try
-        {
-            while (grille[ligne][colonne] != vide) // on parcourt la colonne de haut en bas jusqu'a trouver une case vide
-            {
-                if (ligne == 0) // Si la colonne est pleine, erreur.
-                {
-                    throw std::out_of_range("La colonne est pleine! \n");
-                }
-                else
-                {
-                    --ligne;
-                }
-            }
-        }
-        catch(std::exception const& full)
-        {
-            std::cout << full.what();
-            goto error;
-
-        }
-
         grille[ligne][colonne] = jeton; //Placement du jeton
         isWon = this->isWon(joueur);
         if (joueur != rouge)joueur = rouge;
